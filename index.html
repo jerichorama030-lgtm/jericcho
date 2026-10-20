@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Artify Admin</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/styles.css">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+  <div id="loginView" class="login-wrap">
+    <form id="loginForm" class="login-card">
+      <div class="brand-mark">A</div>
+      <p class="eyebrow">ARTIFY · STORE MANAGEMENT</p>
+      <h1>Admin sign in</h1>
+      <p class="subheading">Sign in with an Artify admin account.</p>
+      <label>Email address
+        <input id="email" type="email" autocomplete="username" required value="admin@gmail.com" placeholder="admin@gmail.com">
+      </label>
+      <label>Password
+        <input id="password" type="password" autocomplete="current-password" required value="••••••••" placeholder="••••••••">
+      </label>
+      <button class="btn primary full" type="submit">Sign in to dashboard</button>
+      <p id="loginError" class="error" role="alert"></p>
+      <p class="tiny muted">Access is restricted to accounts with the trusted Supabase app_metadata role set to <b>admin</b>.</p>
+    </form>
+  </div>
+  <div id="appView" class="app hidden">
+    <aside class="sidebar">
+      <a class="brand" href="#"><span class="brand-mark small">A</span><span>artify<small>ADMIN STUDIO</small></span></a>
+      <p class="nav-label">WORKSPACE</p>
+      <button class="nav-item active" data-page="overview"><span>◫</span> Overview</button>
+      <button class="nav-item" data-page="products"><span>▧</span> Products <span class="nav-count" id="productNavCount">0</span></button>
+      <button class="nav-item" data-page="orders"><span>▤</span> Orders</button>
+      <div class="sidebar-bottom"><div class="profile-mini"><div class="avatar">A</div><div><b id="adminEmail">Admin</b><small>Administrator</small></div></div><button id="logoutBtn" class="btn ghost full">↪ Sign out</button></div>
+    </aside>
+    <main class="main">
+      <header class="topbar"><div><p class="eyebrow">ARTIFY / MANAGEMENT</p><h2 id="pageHeading">Overview</h2></div><div class="top-actions"><span class="status-dot">● Connected</span><button id="refreshBtn" class="btn secondary">↻ Refresh</button></div></header>
+      <div id="notice" class="notice hidden"></div>
+      <section id="overviewPage" class="page">
+        <div class="welcome"><div><p class="eyebrow light">YOUR CREATIVE STORE, AT A GLANCE</p><h1>Good to see you.</h1><p>Manage your art supplies, stock, and customer orders from one place.</p></div><div class="welcome-art">✳</div></div>
+        <div class="stats-grid">
+          <article class="stat-card"><div class="stat-top"><span>Total products</span><span class="stat-icon peach">▧</span></div><strong id="statProducts">—</strong><small>All catalog items</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Active products</span><span class="stat-icon green">✓</span></div><strong id="statActive">—</strong><small>Visible in the app</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Low stock</span><span class="stat-icon yellow">!</span></div><strong id="statLow">—</strong><small>10 units or fewer</small></article>
+          <article class="stat-card"><div class="stat-top"><span>Total orders</span><span class="stat-icon lilac">▤</span></div><strong id="statOrders">—</strong><small>Orders in database</small></article>
+        </div>
+        <div class="content-grid"><article class="panel"><div class="panel-head"><div><h3>Inventory overview</h3><p>Products that may need attention</p></div><button class="text-btn" data-goto="products">Manage products →</button></div><div id="lowStockList" class="low-stock-list"><div class="empty">Loading inventory…</div></div></article>
+        <article class="panel"><div class="panel-head"><div><h3>Recent orders</h3><p>Latest customer purchases</p></div><button class="text-btn" data-goto="orders">View all →</button></div><div id="recentOrders" class="compact-orders"><div class="empty">Loading orders…</div></div></article></div>
+      </section>
+      <section id="productsPage" class="page hidden">
+        <div class="page-tools"><div><h3>Product catalog</h3><p>Keep product details and inventory up to date.</p></div><button id="addProductBtn" class="btn primary">＋ Add product</button></div>
+        <div class="filter-bar"><div class="search-box">⌕ <input id="productSearch" placeholder="Search name, brand, category…"></div><select id="productStatus"><option value="all">All statuses</option><option value="active">Active</option><option value="inactive">Inactive</option><option value="low">Low stock</option></select></div>
+        <div class="panel table-panel"><div class="table-scroll"><table><thead><tr><th>PRODUCT</th><th>CATEGORY</th><th>PRICE</th><th>STOCK</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="productsBody"><tr><td colspan="6" class="empty">Loading products…</td></tr></tbody></table></div><div id="productCount" class="table-footer"></div></div>
+      </section>
+      <section id="ordersPage" class="page hidden">
+        <div class="page-tools"><div><h3>Customer orders</h3><p>Review orders and update fulfilment status.</p></div></div>
+        <div class="filter-bar"><div class="search-box">⌕ <input id="orderSearch" placeholder="Search order ID or customer…"></div><select id="orderStatus"><option value="all">All order statuses</option><option value="processing">Processing</option><option value="awaiting_payment">Awaiting payment</option><option value="completed">Completed</option><option value="cancelled">Cancelled</option></select></div>
+        <div class="panel table-panel"><div class="table-scroll"><table><thead><tr><th>ORDER</th><th>CUSTOMER</th><th>DATE</th><th>PAYMENT</th><th>TOTAL</th><th>STATUS</th><th>ACTIONS</th></tr></thead><tbody id="ordersBody"><tr><td colspan="7" class="empty">Loading orders…</td></tr></tbody></table></div><div id="orderCount" class="table-footer"></div></div>
+      </section>
+    </main>
+  </div>
+  <div id="productModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><form id="productForm" class="modal-card">
+    <div class="modal-head"><div><p class="eyebrow">CATALOG MANAGEMENT</p><h2 id="modalTitle">Add product</h2></div><button type="button" class="icon-btn" id="closeModal" aria-label="Close">×</button></div>
+    <input type="hidden" id="productId">
+    <div class="form-grid">
+      <label>Product name *<input id="pName" required maxlength="120"></label><label>Brand<input id="pBrand" maxlength="100" value="Artify Studio"></label>
+      <label>Category *<input id="pCategory" required maxlength="80" placeholder="e.g. Drawing"></label><label>Price (₱) *<input id="pPrice" type="number" min="0" step="1" required></label>
+      <label>Stock quantity *<input id="pStock" type="number" min="0" step="1" required></label><label>Image URL<input id="pImage" type="url" placeholder="https://…"></label>
+      <label class="wide">Description<textarea id="pDescription" rows="3"></textarea></label>
+      <label>Tint hex<input id="pTint" value="E9D8C3" placeholder="E9D8C3"></label><label>Icon name<select id="pIcon"><option value="palette_outlined">Palette</option><option value="edit_outlined">Drawing pencil</option><option value="brush_outlined">Brush</option><option value="description_outlined">Paper</option><option value="gesture_outlined">Craft</option></select></label>
+      <label class="check-label wide"><input id="pActive" type="checkbox" checked> Product is active and visible in the app</label>
+    </div>
+    <p id="productFormError" class="error"></p><div class="modal-actions"><button type="button" class="btn secondary" id="cancelModal">Cancel</button><button class="btn primary" type="submit">Save product</button></div>
+  </form></div>
+  <div id="orderModal" class="modal hidden" role="dialog" aria-modal="true"><div class="modal-card"><div class="modal-head"><div><p class="eyebrow">ORDER DETAILS</p><h2 id="orderModalTitle">Order</h2></div><button class="icon-btn" id="closeOrderModal">×</button></div><div id="orderDetails"></div><div class="modal-actions"><button class="btn secondary" id="closeOrderModalBottom">Close</button></div></div></div>
+  <script src="js/config.js"></script><script src="js/app.js"></script>
+</body></html>
